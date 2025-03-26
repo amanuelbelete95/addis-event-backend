@@ -21,7 +21,7 @@
             const events = await Event.find({});
             res.status(200).json(events);
         } catch (error) {
-            res.status(500).send(error.message);
+            res.status(500).json(error.message);
         }
     })
 
@@ -43,12 +43,12 @@
     app.put('/api/events/:id', async (req, res) => {
         try {
             const { id } = req.params
-            const event = await Event.findByIdAndUpdate(id, req.body);
+            const event = await Event.findById(id);
             if(!event) {
                 return res.status(404).json({message: "event not found!"})
             }
-            // Check if it has already updated the database
-            const updateEvent = await Event.findById(id)
+
+            const updateEvent = await Event.findByIdAndUpdate(id, req.body)
             res.status(200).json(updateEvent)
 
         } catch (error) {
@@ -58,14 +58,15 @@
         }
     })
 
-
-
     // Get single events;
 
     app.get("/api/events/:id", async (req, res) => {
         try {
         const { id } = req.params
         const event = await Event.findById(id);
+        if (!event) {
+            return res.status(404).json({ message: "Event not found" });
+        }
         res.status(200).json(event);
         } catch (error) {
         res.status(500).send(error.message);
@@ -76,10 +77,12 @@
     app.delete = ("/api/events/:id", async (req, res) => {
         try {
         const { id } = req.params
-        console.log(id)
         const event = await Event.findById(id);
-        // await event.remove();
-        res.status(200).json({message: "deleted the event"});
+        if (!event) {
+            return res.status(404).json({ message: "Event not found" });
+        }
+        await Event.findByIdAndDelete(id);
+        res.status(200).json({message: "Event deleted Successfully"})
         } catch (error) {
         res.status(500).send(error.message);
         }
