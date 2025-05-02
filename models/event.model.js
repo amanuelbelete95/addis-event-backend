@@ -1,36 +1,27 @@
 import mongoose from "mongoose";
+const Schema = mongoose.Schema;
 
-// schema in which we provide the model;
- const eventSchema = mongoose.Schema({
-    name: {
-        type: String,
-        required: [true, "Event name is required"]
+// const locationSchema = new Schema({
+//     name: String,
+//     address: String,
+// })
+
+const eventSchema = new Schema(
+    {
+        name: {
+            type: String,
+            required: true,
+        },
+        location: String,
+        image: String,
+        participant: String,
+        description: String
+
+
     },
-    location: {
-        type: String,
-        required: true,
-    },
-    image: {
-        type: String,
-        required: false
-    },
-    description: {
-        type: String,
-        required: false
-    },
-},
-{ timestamps: true }
+    {
+        timestamps: true
+    }
 )
 
-// module.exports = mongoose.model(
-//     'Event', eventSchema, 'Events');
-
 export const Event = mongoose.model("Event", eventSchema);
-// export default Event;
-
-
-// export const Message = mongoose.model("Message", MessageSchema);
-
-
-
-
