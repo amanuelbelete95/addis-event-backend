@@ -1,9 +1,8 @@
 import cors from "cors";
 import express from "express";
 import mongoose from "mongoose";
-import { Event } from "./models/event.model.js";
-import { createEvent, deleteEvent, getAllEvents, getSingleEvent, updateEvent } from "./routes/events.routes.js";
-import { createUser } from "./routes/user.routes.js";
+
+import eventRoutes from "./routes/events.routes"
 
 
 const app = express();
@@ -13,21 +12,9 @@ app.use(cors())
 
 // Handle User Model
 
-app.post('/api/users/register', createUser)
-
 // Handle Event Model
-app.post('/api/events', createEvent)
 
-app.get("/api/events", getAllEvents)
-
-app.put('/api/events/:id', updateEvent)
-
-app.get("/api/events/:id", getSingleEvent);
-
-app.delete("/api/events/:id", deleteEvent);
-
-
-// 
+app.use('/api/events', eventRoutes )
 
 
 // connection string

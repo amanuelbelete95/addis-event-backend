@@ -1,5 +1,4 @@
-import { User } from "../models/user.models";
-
+import { User } from "../models/user.model";
 export const createUser = async (req, res) => {
     const user = req.body;
     if (!user) {
