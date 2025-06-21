@@ -2,7 +2,8 @@ import cors from "cors";
 import express from "express";
 import mongoose from "mongoose";
 
-import eventRoutes from "./routes/events.routes"
+import eventRoutes from "./routes/events.routes.ts"
+import userRoutes from "./routes/controller/authController.ts"
 
 
 const app = express();
@@ -10,11 +11,12 @@ app.use(express.json());
 
 app.use(cors())
 
-// Handle User Model
-
 // Handle Event Model
 
 app.use('/api/events', eventRoutes )
+
+// Handle the User Modle
+app.use('/api', userRoutes )
 
 
 // connection string

@@ -1,6 +1,7 @@
-import User from '../models/user.model.js'; // Correct import
+import User from '../../models/user.model'
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
+const router = express.Router();
 
 // Helper function to create a token
 const generateToken = (id, role) => {
@@ -76,3 +77,9 @@ export const loginUser = async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 };
+
+
+router.post('/login', loginUser);
+router.post('/register', registerUser)
+
+export default router;
