@@ -2,8 +2,8 @@ import cors from "cors";
 import express from "express";
 import mongoose from "mongoose";
 
-import eventRoutes from "./routes/events.routes.ts"
-import userRoutes from "./routes/controller/authController.ts"
+import eventRoutes from "./routes/events.routes.js"
+import userRoutes from "./routes/controller/authController.js"
 
 
 const app = express();
