@@ -5,7 +5,9 @@
     "express": "^4.21.2",
     "jsonwebtoken": "^9.0.2",
     "mongodb": "^6.15.0",
-    "mongoose": "^8.12.1"
+    "mongoose": "^8.12.1",
+    "sqlite": "^5.1.1",
+    "sqlite3": "^5.1.7"
   },
   "scripts": {
     "start": "node index.js",
