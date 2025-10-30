@@ -3,7 +3,6 @@ import express from "express";
 import mongoose from "mongoose";
 
 import eventRoutes from "./routes/events.routes.js"
-import userRoutes from "./routes/controller/authController.js"
 
 
 const app = express();
@@ -14,9 +13,6 @@ app.use(cors())
 // Handle Event Model
 
 app.use('/api/events', eventRoutes )
-
-// Handle the User Modle
-app.use('/api', userRoutes )
 
 
 // connection string

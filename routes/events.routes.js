@@ -1,9 +1,8 @@
 import express from "express";
 import { Event } from "../models/event.model.js";
-import { admin } from "./middlewares/eventMiddleWare.js";
+
 const router = express.Router();
 
-// API For Admin
 
 router.post('/', async (req, res) => {
     const getNewEvent = req.body;
@@ -27,7 +26,7 @@ router.post('/', async (req, res) => {
 })
 
 // Update Event
-router.put("/:id", admin, async (req, res) => {
+router.put("/:id", async (req, res) => {
     const { id } = req.params;
     const getNewUpdatedEvent = req.body;
     const event = await Event.findById(id);
@@ -40,7 +39,7 @@ router.put("/:id", admin, async (req, res) => {
         const updatedEvent = await Event.findByIdAndUpdate(id, getNewUpdatedEvent, { new: true })
         res.status(200).json(updatedEvent)
     } catch (error) {
-        console.log("Error in Updating Product", error.message)
+       
         res.status(500).json({
             message: error.message
         })
@@ -48,7 +47,7 @@ router.put("/:id", admin, async (req, res) => {
 })
 
 // Delete Event
-router.delete("/:id", admin, async (req, res) => {
+router.delete("/:id/delete", admin, async (req, res) => {
     const { id } = req.params;
     const event = await Event.findById(id);
     if (!event) {
