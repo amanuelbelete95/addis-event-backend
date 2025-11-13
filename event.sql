@@ -10,3 +10,9 @@ CREATE TABLE event (
 
 ALTER TABLE event
 ADD COLUMN location VARCHAR(200);
+
+
+INSERT INTO event (
+    name, event_date, event_status, description, location
+)
+VALUES ()
