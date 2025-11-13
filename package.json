@@ -4,8 +4,6 @@
     "cors": "^2.8.5",
     "express": "^4.21.2",
     "jsonwebtoken": "^9.0.2",
-    "mongodb": "^6.15.0",
-    "mongoose": "^8.12.1",
     "pg": "^8.16.3"
   },
   "scripts": {
@@ -15,6 +13,9 @@
   },
   "type": "module",
   "devDependencies": {
-    "nodemon": "^3.1.9"
+    "nodemon": "^3.1.9",
+    "prettier": "^3.6.2",
+    "prettier-plugin-embed": "^0.5.0",
+    "prettier-plugin-sql": "^0.19.2"
   }
 }

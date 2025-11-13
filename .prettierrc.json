@@ -1,0 +1,34 @@
+{
+  "semi": true,
+  "singleQuote": true,
+  "trailingComma": "es5",
+  "printWidth": 80,
+  "tabWidth": 2,
+  "plugins": ["prettier-plugin-sql", "prettier-plugin-embed"],
+  "language": "postgresql",
+  "keywordCase": "lower",
+  "identifierCase": "lower",
+  "functionCase": "lower",
+  "overrides": [
+    {
+      "files": "*.js",
+      "options": {
+        "parser": "babel",
+        "language": "postgresql",
+        "keywordCase": "lower",
+        "identifierCase": "lower",
+        "functionCase": "lower"
+      }
+    },
+    {
+      "files": "*.sql",
+      "options": {
+        "parser": "sql",
+        "language": "postgresql",
+        "keywordCase": "lower",
+        "identifierCase": "lower",
+        "functionCase": "lower"
+      }
+    }
+  ]
+}
