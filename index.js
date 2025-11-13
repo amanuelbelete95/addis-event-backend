@@ -13,19 +13,9 @@ app.post('/api/events', async (req, res) => {
   try {
     const { name, location, event_date, event_status, description } = req.body;
     const newEvent = await pool.query(
-      /* sql */ `
-        insert into
-          event (
-            name,
-            location,
-            event_date,
-            event_status,
-            description
-          )
-        values
-          ($1, $2, $3, $4, $5)
-        returning
-          *
+      `insert into event (name,location,event_date,event_status,description)  
+       values ($1, $2, $3, $4, $5)
+       returning *
       `,
       [name, location, event_date, event_status, description]
     );
@@ -36,12 +26,7 @@ app.post('/api/events', async (req, res) => {
 
 app.get('/api/events', async (req, res) => {
   try {
-    const allEvents = await pool.query(/* sql */ `
-      select
-        *
-      from
-        event
-    `);
+    const allEvents = await pool.query(`select * from event`);
     res.json(allEvents.rows);
   } catch (error) {}
 });
@@ -52,7 +37,7 @@ app.get('/api/events/:event_id', async (req, res) => {
   try {
     const { event_id } = req.params;
     const getEvent = await pool.query(
-      /* sql */ `
+      `
         select
           *
         from
@@ -96,7 +81,7 @@ app.put('/api/events/:event_id', async (req, res) => {
 app.delete('/api/events/:id', async (req, res) => {
   try {
     const { event_id } = req.params;
-    await pool.query(
+   const deletedEvent =  await pool.query(
        `
         delete from event 
         where
@@ -109,7 +94,7 @@ app.delete('/api/events/:id', async (req, res) => {
     res.json({ message: 'Event delete succesfully' });
   } catch (error) {
     console.error('Error deleting event:', error.message);
-    res.status(500).json({ message: 'Server error' });
+    res.status(500).json({ message: 'Server error', event: deletedEvent.rows[0] });
   }
 });
 
