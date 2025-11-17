@@ -66,7 +66,7 @@ app.put('/api/events/:event_id', async (req, res) => {
   } catch (error) { }
 });
 
-app.delete('/api/events/:id', async (req, res) => {
+app.delete('/api/events/:event_id', async (req, res) => {
   try {
     const { event_id } = req.params;
     const deletedEvent = await pool.query(
