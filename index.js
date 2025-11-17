@@ -20,7 +20,7 @@ app.post('/api/events', async (req, res) => {
       [name, location, event_date, event_status, description]
     );
     res.json(newEvent.rows[0]);
-  } catch (error) {}
+  } catch (error) { }
 });
 // get All Events
 
@@ -28,7 +28,7 @@ app.get('/api/events', async (req, res) => {
   try {
     const allEvents = await pool.query(`select * from event`);
     res.json(allEvents.rows);
-  } catch (error) {}
+  } catch (error) { }
 });
 
 // get single event
@@ -36,15 +36,7 @@ app.get('/api/events', async (req, res) => {
 app.get('/api/events/:event_id', async (req, res) => {
   try {
     const { event_id } = req.params;
-    const getEvent = await pool.query(
-      `
-        select
-          *
-        from
-          event
-        where
-          event_id = $1
-      `,
+    const getEvent = await pool.query(`select * from event where event_id = $1`,
       [event_id]
     );
     res.json(getEvent.rows[0]);
@@ -62,36 +54,31 @@ app.put('/api/events/:event_id', async (req, res) => {
     const { event_id } = req.params;
     const { name, location } = req.body;
     const updatedEvent = await pool.query(
-     `
-        update event
-        set
-          name = coalesce($1, name),
-          location = coalesce($2, location)
-        where
-          event_id = $3
-        returning
-          *
+      `
+      update event set name = coalesce($1, name),location = coalesce($2, location)
+      where event_id = $3
+      returning
+       *
       `,
       [name, location, event_id]
     );
-    res.json(updatedEvent.rows[0]);
-  } catch (error) {}
+    return res.json(updatedEvent.rows[0]);
+  } catch (error) { }
 });
 
 app.delete('/api/events/:id', async (req, res) => {
   try {
     const { event_id } = req.params;
-   const deletedEvent =  await pool.query(
-       `
-        delete from event 
-        where
-          event_id = $1
-        returning
-          *
+    const deletedEvent = await pool.query(
+      `
+       delete from event 
+       where event_id = $1
+       returning
+         *
       `,
       [event_id]
     );
-    res.json({ message: 'Event delete succesfully' });
+    return res.json({ message: 'Event deleted succesfully', event: deletedEvent.rows[0] });
   } catch (error) {
     console.error('Error deleting event:', error.message);
     res.status(500).json({ message: 'Server error', event: deletedEvent.rows[0] });
