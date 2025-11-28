@@ -26,3 +26,14 @@ select
   *
 from
   event;
+
+  gg_
+
+
+create table users (
+  id serial primary key,
+  name varchar(200) not null,
+  email VARCHAR(200) unique not null,
+  password VARCHAR(250),
+  created_at timestamp default current_timestamp
+);

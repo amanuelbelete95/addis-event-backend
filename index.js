@@ -1,12 +1,18 @@
 import cors from 'cors';
 import express from 'express';
+import userRoutes from './routes/auth.js';
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 const PORT = 4000;
 
+
 import pool from './db.js';
+
+
+// Add user route
+app.use('/', userRoutes);
 
 // Add event
 app.post('/api/events', async (req, res) => {
