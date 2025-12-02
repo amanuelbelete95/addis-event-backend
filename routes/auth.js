@@ -6,6 +6,16 @@ import pool from '../db.js';
 
 const router = express.Router();
 
+const cookiesOptions = {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'strict',
+    maxAge: 30 * 24 * 60 * 60 * 1000,
+}
+const generateToken = (id) => {
+    return jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: '30d' });
+}
+
 const createUser = async (name, email, password) => {
     const hashedPassword = await bcrypt.hash(password, 10);
     const newUser = await pool.query(
@@ -24,8 +34,16 @@ router.post('/register', async (req, res) => {
                 message: 'Please the provide the fields to register the user',
             });
         }
+
+        const userExists = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
+        if (userExists.rows.length > 0) {
+            return res.status(400).json({ message: 'User already exists' });
+        }
+        // Register the new User
         const newUser = await createUser(name, email, password);
-        res.status(201).json(newUser);
+        const token = generateToken(newUser.id);
+        res.cookie('token', token, cookiesOptions);
+        res.status(201).json({ message: 'User created successfully' });
     } catch (error) {
         console.error('Error creating user:', error);
         res.status(500).json({ message: 'Internal server error' });
