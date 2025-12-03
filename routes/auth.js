@@ -3,6 +3,7 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 
 import pool from '../db.js';
+import { Pool } from 'pg';
 
 const router = express.Router();
 
@@ -49,7 +50,25 @@ router.post('/register', async (req, res) => {
         res.status(500).json({ message: 'Internal server error' });
     }
 });
+router.post('/login', async (req, res) => {
+    try {
+        const { email, password } = req.body;
+        if (!email && !password) {
+            return res.status(400).json({ message: `${email} & ${password} are required to login` })
+        }
+        const userExists = await pool.query(
+            `SELECT email FROM users
+            WHERE email = $1
+            `, [email])
+        if (userExists.rows[0] === 0) {
+            return res.status(404).json({ message: `The user email doesn't exist` })
+        }
+        const userName = userExists.rows[0].name;
 
-// router.post('/login', loginUser);
+        return res.status(201).json({ message: `Welcome back, ${userName}` })
+    } catch (error) {
+ res.status(500).json({ message: 'Internal server error' });
+    }
+});
 
 export default router;
