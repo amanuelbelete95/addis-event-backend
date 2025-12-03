@@ -26,7 +26,7 @@ const createUser = async (name, email, password) => {
     return newUser.rows[0];
 };
 
-router.post('/register', async (req, res) => {
+router.post('/api/register', async (req, res) => {
     try {
         const { name, email, password } = req.body;
 
@@ -50,12 +50,12 @@ router.post('/register', async (req, res) => {
         res.status(500).json({ message: 'Internal server error' });
     }
 });
-router.post('/login', async (req, res) => {
+router.post('/api/login', async (req, res) => {
     try {
         const { email, password } = req.body;
         if (!email && !password) {
             return res.status(400).json({ message: `${email} & ${password} are required to login` })
-        }
+        }           
         const userExists = await pool.query(
             `SELECT * FROM users
             WHERE email = $1

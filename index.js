@@ -113,10 +113,10 @@ app.put('/api/events/:event_id', async (req, res) => {
       });
     }
     const updatedEvent = await pool.query(
-      `
-      update event set name = coalesce($1, name),location = coalesce($2, location)
-      where event_id = $3
-      returning
+      `update event 
+       set name = $1,location = $2
+       where event_id = $3
+       returning
        *
       `,
       [name, location, event_id]
