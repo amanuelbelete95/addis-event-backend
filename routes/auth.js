@@ -57,17 +57,17 @@ router.post('/login', async (req, res) => {
             return res.status(400).json({ message: `${email} & ${password} are required to login` })
         }
         const userExists = await pool.query(
-            `SELECT email FROM users
+            `SELECT * FROM users
             WHERE email = $1
             `, [email])
         if (userExists.rows[0] === 0) {
             return res.status(404).json({ message: `The user email doesn't exist` })
         }
-        const userName = userExists.rows[0].name;
+        const userName = userExists.rows[0].name
 
-        return res.status(201).json({ message: `Welcome back, ${userName}` })
+        return res.status(201).json({ message: `Welcome back, ${userName}`})
     } catch (error) {
- res.status(500).json({ message: 'Internal server error' });
+        res.status(500).json({ message: 'Internal server error' });
     }
 });
 
