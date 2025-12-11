@@ -1,14 +1,15 @@
 import cors from 'cors';
 import express from 'express';
+import { logInUser, registerUser } from './controllers/authController.js';
+import { createEvent, deleteEvent, getSingleEvent, updateEvent, getallEvents } from './controllers/eventController.js';
 
+
+// Configure express app
 const app = express();
 app.use(cors());
 app.use(express.json());
 const PORT = 4000;
 
-
-import { logInUser, registerUser } from './controllers/authController.js';
-import { createEvent, deleteEvent, getSingleEvent, updateEvent, getallEvents } from './controllers/eventController.js';
 
 
 // Add user route
