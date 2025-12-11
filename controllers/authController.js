@@ -12,7 +12,7 @@ const createUser = async (userName, password) => {
     const hashedPassword = await bcrypt.hash(password, 10);
     const newUser = await pool.query(
         'INSERT INTO users (userName password) VALUES ($1, $2, $3) RETURNING *',
-        [hashedPassword]
+        [userName, hashedPassword]
     );
     return newUser.rows[0];
 };
@@ -27,14 +27,12 @@ export const registerUser = async (req, res) => {
             });
         }
 
-        const userExists = await pool.query('SELECT * FROM users WHER= $1',);
-        if (userExists.rows.length > 0) {
+        const user = await pool.query('SELECT * FROM users WHER= $1',);
+        if (user.rows.length > 0) {
             return res.status(400).json({ message: 'User already exists' });
         }
         // Register the new User
         const newUser = await createUser(userName, password);
-        const token = generateToken(newUser.id);
-        res.cookie('token', token, cookiesOptions);
         res.status(201).json({ message: 'User created successfully' });
     } catch (error) {
         console.error('Error creating user:', error);
@@ -48,14 +46,19 @@ export const logInUser = async (req, res) => {
         if (!userName || !password) {
             return res.status(400).json({ message: `Provide the credential to procedd` })
         }
-        const userExists = await pool.query(
+        const user = await pool.query(
             `SELECT * FROM users
-            WHER= $1
-            `,)
-        if (userExists.rows[0] === 0) {
+             WHER# = $1
+            `, [userName])
+        if (user.rows[0] === 0) {
             return res.status(404).json({ message: `The user doesn't exist` })
         }
-        // const isMatch = await bcrypt.compare(password, userExists.password)
+        const isMatch = await bcrypt.compare(password, user.password)
+        if (!isMatch) {
+            res.status(400).json({ message: "InValid credential" })
+        }
+
+        const token = generateToken(user.id)
 
         return res.status(201).json({ message: `Welcome back, ${userName}` })
     } catch (error) {
