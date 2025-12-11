@@ -130,9 +130,9 @@ export const deleteEvent = async (req, res) => {
       `,
             [event_id]
         );
-        return res.json({ message: 'Event deleted succesfully', event: deletedEvent.rows[0] });
+        return res.json({ message: 'Event deleted successfully', event: deletedEvent.rows[0] });
     } catch (error) {
         console.error('Error deleting event:', error.message);
-        res.status(500).json({ message: 'Internal Server Error: An unexpected error occurred.', code: 500 });
+        return res.status(500).json({ message: 'Internal Server Error: An unexpected error occurred.', code: 500 });
     }
 }
