@@ -24,7 +24,7 @@ export const createEvent = async (req, res) => {
 }
 // get All Events
 
-export const allEvents = async (req, res) => {
+export const getallEvents = async (req, res) => {
     try {
         const allEvents = await pool.query(`select * from event`);
         if (allEvents.rows.length === 0) {
