@@ -8,31 +8,31 @@ const generateToken = (id) => {
     return jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: '30d' });
 }
 
-const createUser = async (name, email, password) => {
+const createUser = async (userName, password) => {
     const hashedPassword = await bcrypt.hash(password, 10);
     const newUser = await pool.query(
-        'INSERT INTO users (name, email, password) VALUES ($1, $2, $3) RETURNING *',
-        [name, email, hashedPassword]
+        'INSERT INTO users (userName password) VALUES ($1, $2, $3) RETURNING *',
+        [hashedPassword]
     );
     return newUser.rows[0];
 };
 
 export const registerUser = async (req, res) => {
     try {
-        const { name, email, password } = req.body;
+        const { userName, role, password } = req.body;
 
-        if (!name || !email || !password) {
+        if (!userName || !password) {
             return res.status(400).json({
                 message: 'Please the provide the fields to register the user',
             });
         }
 
-        const userExists = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
+        const userExists = await pool.query('SELECT * FROM users WHER= $1',);
         if (userExists.rows.length > 0) {
             return res.status(400).json({ message: 'User already exists' });
         }
         // Register the new User
-        const newUser = await createUser(name, email, password);
+        const newUser = await createUser(userName, password);
         const token = generateToken(newUser.id);
         res.cookie('token', token, cookiesOptions);
         res.status(201).json({ message: 'User created successfully' });
@@ -44,16 +44,16 @@ export const registerUser = async (req, res) => {
 
 export const logInUser = async (req, res) => {
     try {
-        const { email, password } = req.body;
-        if (!email && !password) {
-            return res.status(400).json({ message: `${email} & ${password} are required to login` })
+        const { userName, password } = req.body;
+        if (!userName || !password) {
+            return res.status(400).json({ message: `Provide the credential to procedd` })
         }
         const userExists = await pool.query(
             `SELECT * FROM users
-            WHERE email = $1
-            `, [email])
+            WHER= $1
+            `,)
         if (userExists.rows[0] === 0) {
-            return res.status(404).json({ message: `The user email doesn't exist` })
+            return res.status(404).json({ message: `The user doesn't exist` })
         }
         // const isMatch = await bcrypt.compare(password, userExists.password)
 

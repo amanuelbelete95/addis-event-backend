@@ -13,7 +13,7 @@ import { createEvent, deleteEvent, getSingleEvent, updateEvent, getallEvents } f
 
 // Add user route
 app.post('/api/register', registerUser);
-app.post('./api/login', logInUser)
+app.post('/api/login', logInUser)
 
 
 // Event Route
