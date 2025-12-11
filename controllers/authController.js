@@ -3,16 +3,9 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 
 import pool from '../db.js';
-import { Pool } from 'pg';
 
 const router = express.Router();
 
-const cookiesOptions = {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'strict',
-    maxAge: 30 * 24 * 60 * 60 * 1000,
-}
 const generateToken = (id) => {
     return jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: '30d' });
 }
@@ -26,7 +19,7 @@ const createUser = async (name, email, password) => {
     return newUser.rows[0];
 };
 
-router.post('/api/register', async (req, res) => {
+export const registerUser = async (req, res) => {
     try {
         const { name, email, password } = req.body;
 
@@ -49,13 +42,14 @@ router.post('/api/register', async (req, res) => {
         console.error('Error creating user:', error);
         res.status(500).json({ message: 'Internal server error' });
     }
-});
-router.post('/api/login', async (req, res) => {
+}
+
+export const logInUser = async (req, res) => {
     try {
         const { email, password } = req.body;
         if (!email && !password) {
             return res.status(400).json({ message: `${email} & ${password} are required to login` })
-        }           
+        }
         const userExists = await pool.query(
             `SELECT * FROM users
             WHERE email = $1
@@ -63,12 +57,10 @@ router.post('/api/login', async (req, res) => {
         if (userExists.rows[0] === 0) {
             return res.status(404).json({ message: `The user email doesn't exist` })
         }
-        const userName = userExists.rows[0].name
+        // const isMatch = await bcrypt.compare(password, userExists.password)
 
-        return res.status(201).json({ message: `Welcome back, ${userName}`})
+        return res.status(201).json({ message: `Welcome back, ${userName}` })
     } catch (error) {
         res.status(500).json({ message: 'Internal server error' });
     }
-});
-
-export default router;
+}

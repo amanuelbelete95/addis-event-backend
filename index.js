@@ -1,6 +1,5 @@
 import cors from 'cors';
 import express from 'express';
-import userRoutes from './routes/auth.js';
 
 const app = express();
 app.use(cors());
@@ -8,152 +7,26 @@ app.use(express.json());
 const PORT = 4000;
 
 
-import pool from './db.js';
+import { logInUser, registerUser } from './controllers/authController.js';
+import { allEvents, createEvent, deleteEvent, getSingleEvent, updateEvent } from './controllers/eventController.js';
 
 
 // Add user route
-app.use('/', userRoutes);
+app.post('/api/register', registerUser);
+app.post('./api/login', logInUser)
 
-// Add event
-app.post('/api/events', async (req, res) => {
-  try {
-    const { name, location, event_date, event_status, description } = req.body;
-    if (!name || !location || !event_date || !event_status) {
-      return res.status(400).json({
-        message: 'Bad Request: All fields are required.',
-        code: 400,
-      });
-    }
-    const newEvent = await pool.query(
-      `insert into event (name,location,event_date,event_status,description)  
-       values ($1, $2, $3, $4, $5)
-       returning *
-      `,
-      [name, location, event_date, event_status, description]
-    );
-    res.json(newEvent.rows[0]);
-  } catch (error) {
-    return res.status(500).json({
-      message: 'Internal Server Error: An unexpected error occurred.',
-      code: 500,
-    });
-  }
-});
+
+// Event Route
+app.post('/api/events', createEvent);
 // get All Events
-
-app.get('/api/events', async (req, res) => {
-  try {
-    const allEvents = await pool.query(`select * from event`);
-    if (allEvents.rows.length === 0) {
-      return res.status(404).json({
-        message: 'No events found.',
-        code: 404,
-      });
-    }
-    res.json(allEvents.rows);
-  } catch (error) {
-    return res.status(500).json({
-      message: 'Internal Server Error: An unexpected error occurred.',
-      code: 500,
-    });
-  }
-});
-
+app.get('/api/events', allEvents);
 // get single event
-
-app.get('/api/events/:event_id', async (req, res) => {
-  try {
-    const { event_id } = req.params;
-    if (!event_id) {
-      return res.status(400).json({
-        message: 'Bad Request: Event ID is required.',
-        code: 400,
-      });
-    }
-
-    const getEvent = await pool.query(
-      `select * from event where event_id = $1`,
-      [event_id]
-    );
-
-    if (getEvent.rows.length === 0) {
-      return res.status(404).json({
-        message: `Event with ID ${event_id} not found.`,
-        code: 404,
-      });
-    }
-
-    res.status(200).json(getEvent.rows[0]);
-  }
-  catch (error) {
-    return res.status(500).json({
-      message: 'Internal Server Error: An unexpected error occurred.',
-      code: 500,
-    });
-  }
-});
-
+app.get('/api/events/:event_id', getSingleEvent
+);
 // Update an event
-
-app.put('/api/events/:event_id', async (req, res) => {
-  try {
-    const { event_id } = req.params;
-    if (!event_id) {
-      return res.status(400).json({
-        message: 'Bad Request: Event ID is required.',
-        code: 400,
-      });
-    }
-    const { name, location } = req.body;
-
-    if (!name || !location) {
-      return res.status(404).json({
-        message: 'Bad Request: Event name and location are required.',
-        code: 400,
-      });
-    }
-    const updatedEvent = await pool.query(
-      `update event 
-       set name = $1,location = $2
-       where event_id = $3
-       returning
-       *
-      `,
-      [name, location, event_id]
-    );
-    res.json(updatedEvent.rows[0]);
-  } catch (error) {
-    return res.status(500).json({
-      message: 'Internal Server Error: An unexpected error occurred.',
-      code: 500,
-    });
-  }
-});
-
-app.delete('/api/events/:event_id', async (req, res) => {
-  try {
-    const { event_id } = req.params;
-    if (!event_id) {
-      return res.status(400).json({
-        message: 'Bad Request: Event ID is required.',
-        code: 400,
-      });
-    }
-    const deletedEvent = await pool.query(
-      `
-       delete from event 
-       where event_id = $1
-       returning
-         *
-      `,
-      [event_id]
-    );
-    return res.json({ message: 'Event deleted succesfully', event: deletedEvent.rows[0] });
-  } catch (error) {
-    console.error('Error deleting event:', error.message);
-    res.status(500).json({ message: 'Internal Server Error: An unexpected error occurred.', code: 500 });
-  }
-});
+app.put('/api/events/:event_id', updateEvent);
+// delete event
+app.delete('/api/events/:event_id', deleteEvent);
 
 app.listen(PORT, () => {
   console.log('Sever has started');
