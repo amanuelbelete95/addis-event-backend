@@ -1,4 +1,3 @@
-import express from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import pool from '../db.js';
@@ -6,6 +5,7 @@ import pool from '../db.js';
 
 const createUser = async (userName, password, role) => {
     const hashedPassword = await bcrypt.hash(password, 10);
+    console.log("hashedPassword", hashedPassword)
     const newUser = await pool.query(
         'INSERT INTO users (userName, password, role) VALUES ($1, $2, $3) RETURNING *',
         [userName, hashedPassword, role]
@@ -31,21 +31,22 @@ export const registerUser = async (req, res) => {
         const newUser = await createUser(userName, password, role);
         res.status(201).json({ message: `User with ${newUser.userName} created successfully`, user: newUser });
     } catch (error) {
-        console.error('Error creating user:', error);
         res.status(500).json({ message: 'Internal server error' });
     }
 }
 
 export const logInUser = async (req, res) => {
     try {
-        const { userName, password } = req.body;
-        if (!userName || !password) {
+        const { username, password } = req.body;
+
+        console.log(req.body)
+        if (!username || !password) {
             return res.status(400).json({ message: `Provide the credential to procedd` })
         }
         const user = await pool.query(
             `SELECT * FROM users
              WHERE userName = $1
-            `, [userName])
+            `, [username])
         if (user.rows.length === 0) {
             return res.status(404).json({ message: `The user doesn't exist` })
         }
@@ -53,10 +54,34 @@ export const logInUser = async (req, res) => {
         if (!isMatch) {
             return res.status(400).json({ message: "Invalid credential" })
         }
+        if (!process.env.JWT_SECRET) {
+            throw new Error("JWT_SECRET is not defined in .env");
+        }
 
         const token = jwt.sign({ id: user.rows[0].id, role: user.rows[0].role }, process.env.JWT_SECRET, { expiresIn: "1h" })
-        return res.status(200).json({ token })
+        return res.status(200).json({
+            token, user: {
+                id: user.rows[0].id,
+                role: user.rows[0].role,
+                username: user.rows[0].username,
+            }
+        })
     } catch (error) {
+        console.error("Login error:", error);
         res.status(500).json({ message: 'Internal server error' });
     }
+
+}
+
+export const Me = async (req, res) => {
+    const token = req.headers.authorization?.split(" ")[1];
+    if (!token) return res.status(401).json({ message: "Unauthorized" });
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    res.json({
+        id: decoded.id,
+        username: decoded.username,
+        role: decoded.role,
+        password: decoded.password
+    });
 }
