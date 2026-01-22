@@ -26,3 +26,13 @@ select
   *
 from
   event;
+
+  gg_
+
+
+create table users (
+  id serial primary key,
+  userName VARCHAR(200) unique not null,
+  password VARCHAR(250),
+  role VARCHAR(200)
+);
