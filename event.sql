@@ -13,7 +13,7 @@ create table users (
   username VARCHAR(200) unique not null,
   password VARCHAR(250) not null,
   confirmPassword VARCHAR(250) not null,
-  role VARCHAR(200)
+  role VARCHAR(200) default user,
 );
 
 create table event_registration (

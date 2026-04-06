@@ -40,27 +40,43 @@ export const getUser = async (req, res) => {
 }
 
 
-// Incase admin want to update a user;
+// Incase admin want to update a user role;
 export const updateUser = async (req, res) => {
   try {
     const { id } = req.params;
-    const { firstname, lastname, role } = req.body
+    const { firstname, lastname, role } = req.body;
 
     if (!id) {
-      return res.status(400).json({ message: "User Id is required" })
+      return res.status(400).json({ message: "User Id is required" });
     }
 
-    const userExist = await pool.query(`SELECT * FROM users WHERE id=$1`, [
-      id
-    ])
+    // Check if user exists
+    const userExist = await pool.query(
+      `SELECT * FROM users WHERE id = $1`,
+      [id]
+    );
+
     if (userExist.rows.length === 0) {
-      return res.status(404).json({ message: "User doesn't exist" })
+      return res.status(404).json({ message: "User doesn't exist" });
     }
 
-    const updatedUser = await pool.query(`UPDATE users 
-      set firstname = $1, lastname =$2, role = $3 WHERE id = $4 returning *`,
-      [firstname, lastname, role, id]);
-    res.status(200).json(updatedUser.rows[0])
+    // Validate role (optional but recommended)
+    if (role && !["user", "admin"].includes(role)) {
+      return res.status(400).json({ message: "Invalid role value" });
+    }
+
+    // Update only provided fields
+    const updatedUser = await pool.query(
+      `UPDATE users SET
+        firstname = COALESCE($1, firstname),
+        lastname = COALESCE($2, lastname),
+        role = COALESCE($3, role)
+       WHERE id = $4
+       RETURNING id, firstname, lastname, username, role`,
+      [firstname || null, lastname || null, role || null, id]
+    );
+
+    res.status(200).json(updatedUser.rows[0]);
   } catch (error) {
     console.log("error", error);
     return res.status(500).json({
@@ -68,4 +84,4 @@ export const updateUser = async (req, res) => {
       code: 500,
     });
   }
-}
+};
