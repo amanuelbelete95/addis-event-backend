@@ -20,7 +20,7 @@ export const getallUsers = async (req, res) => {
 };
 
 
-
+// Admin can see the user detail
 export const getUser = async (req, res) => {
   try {
     const { id } = req.params;
@@ -59,12 +59,6 @@ export const updateUser = async (req, res) => {
     if (userExist.rows.length === 0) {
       return res.status(404).json({ message: "User doesn't exist" });
     }
-
-    // Validate role (optional but recommended)
-    if (role && !["user", "admin"].includes(role)) {
-      return res.status(400).json({ message: "Invalid role value" });
-    }
-
     // Update only provided fields
     const updatedUser = await pool.query(
       `UPDATE users SET
