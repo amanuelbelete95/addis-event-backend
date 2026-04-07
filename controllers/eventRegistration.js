@@ -93,6 +93,41 @@ export const registerToEvent = async (req, res) => {
 };
 
 // get all registered events for a user that signed in:
+// export const getallRegisteredEvents = async (req, res) => {
+//   try {
+//     const token = req.headers.authorization?.split(' ')[1];
+//     if (!token) {
+//       return res.status(401).json({ message: 'Unauthorized' });
+//     }
+
+//     const decoded = jwt.verify(token, process.env.JWT_SECRET);
+//     const userId = decoded.id;
+
+//     const result = await pool.query(
+//       `SELECT er.*, e.name, e.description, e.event_date, e.location, e.capacity, e.registration_count, e.event_status
+//        FROM event_registration er
+//        JOIN event e ON er.event_id = e.id
+//        WHERE er.user_id = $1`,
+//       [userId]
+//     );
+
+//     if (result.rows.length === 0) {
+//       return res.status(404).json({
+//         message: 'No registered event found.',
+//         code: 404,
+//       });
+//     }
+
+//     return res.json(result.rows);
+//   } catch (error) {
+//     console.log('error', error);
+//     return res.status(500).json({
+//       message: 'Internal Server Error: An unexpected error occurred.',
+//       code: 500,
+//     });
+//   }
+// };
+
 export const getallRegisteredEvents = async (req, res) => {
   try {
     const token = req.headers.authorization?.split(' ')[1];
@@ -104,9 +139,10 @@ export const getallRegisteredEvents = async (req, res) => {
     const userId = decoded.id;
 
     const result = await pool.query(
-      `SELECT er.*, e.name, e.description, e.event_date, e.location, e.capacity, e.registration_count, e.event_status
+      `SELECT er.*, e.name, e.description, e.event_date, e.location, 
+              e.capacity, e.registration_count, e.event_status
        FROM event_registration er
-       JOIN event e ON er.event_id = e.id
+       LEFT JOIN event e ON er.event_id = e.id
        WHERE er.user_id = $1`,
       [userId]
     );
@@ -118,7 +154,31 @@ export const getallRegisteredEvents = async (req, res) => {
       });
     }
 
-    return res.json(result.rows);
+    const now = new Date();
+
+    const eventsWithStatus = result.rows.map((event) => {
+      let status;
+      // 1. Event removed (no matching event row)
+      if (!event.event_date) {
+        status = 'removed';
+      } 
+      // 2. Completed
+      else if (new Date(event.event_date) < now) {
+        status = 'completed';
+      } 
+      // 3. Upcoming
+      else {
+        status = 'upcoming';
+      }
+
+      return {
+        ...event,
+        status,
+      };
+    });
+
+    return res.json(eventsWithStatus);
+
   } catch (error) {
     console.log('error', error);
     return res.status(500).json({
