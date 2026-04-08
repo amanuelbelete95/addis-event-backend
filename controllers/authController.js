@@ -2,19 +2,18 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import pool from '../db.js';
 
-const createUser = async (firstname, lastname, userName, password, confirmPassword, role) => {
-  const hashedPassword = await bcrypt.hash(password, 10);
-  const hashedConfirmPassword = await bcrypt.hash(confirmPassword, 10);
+const createUser = async (firstname, lastname, username, password) => {
   const newUser = await pool.query(
-    'INSERT INTO users (firstname, lastname, userName, password, confirmPassword, role) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *',
-    [firstname, lastname, userName, hashedPassword, hashedConfirmPassword, role]
+    'INSERT INTO users (firstname, lastname, username, password) VALUES ($1, $2, $3, $4) RETURNING *',
+    [firstname, lastname, username, password]
   );
   return newUser.rows[0];
 };
 
 export const registerUser = async (req, res) => {
   try {
-    const { firstname, lastname, username, password, confirmPassword, role } = req.body;
+    const { firstname, lastname, username, password, confirmPassword} = req.body;
+    const hashedPassword = await bcrypt.hash(password, 10);
 
     if (!username || !password || !confirmPassword) {
       return res.status(400).json({
@@ -35,9 +34,9 @@ export const registerUser = async (req, res) => {
       return res.status(400).json({ message: 'User already exists' });
     }
     // Register the new User
-    const newUser = await createUser(firstname, lastname, username, password, confirmPassword, role);
+    const newUser = await createUser(firstname, lastname, username, hashedPassword);
     res.status(201).json({
-      message: `User with ${newUser.userName} created successfully`,
+      message: `User with ${newUser.username} created successfully`,
       user: newUser,
     });
   } catch (error) {
