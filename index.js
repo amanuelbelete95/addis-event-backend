@@ -18,7 +18,7 @@ import {
   getallRegisteredEvents,
   registerToEvent,
 } from './controllers/eventRegistration.js';
-import { getallUsers, getUser, updateUser } from './controllers/userController.js';
+import { deleteUser, getallUsers, getUser, updateUser } from './controllers/userController.js';
 
 dotenv.config();
 
@@ -36,10 +36,13 @@ app.post('/api/login', logInUser);
 app.post('/api/me', Me);
 app.get('/api/users', getallUsers);
 
+
 // Update a user 
 app.put('/api/users/:id', updateUser)
 // Get a single user
 app.get('/api/users/:id', getUser)
+// Delete a user
+app.delete('/api/users/:id/delete', deleteUser)
 // Event Route
 app.post('/api/events', createEvent);
 // get All Events

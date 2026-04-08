@@ -79,3 +79,34 @@ export const updateUser = async (req, res) => {
     });
   }
 };
+
+
+export const deleteUser = async (req, res) => {
+  try {
+    const { id } = req.params;
+    if (!id) {
+      return res.status(400).json({
+        message: 'Bad Request: User ID is required.',
+        code: 400,
+      });
+    }
+    await pool.query(
+      `
+       delete from users
+       where id = $1
+       returning
+         *
+      `,
+      [id]
+    );
+    return res.status(200).json({ message: "User is deleted successfully" });
+  } catch (error) {
+    console.log(error)
+    return res
+      .status(500)
+      .json({
+        message: 'Internal Server Error: An unexpected error occurred.',
+        code: 500,
+      });
+  }
+};
