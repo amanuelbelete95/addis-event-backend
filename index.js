@@ -1,7 +1,11 @@
 import 'dotenv/config';
 import cors from 'cors';
 import express from 'express';
-import { logInUser, Me, registerUser } from './controllers/authController.js';
+import {
+  logInUser,
+  getMe,
+  registerUser,
+} from './controllers/authController.js';
 import {
   createEvent,
   deleteEvent,
@@ -32,7 +36,7 @@ app.post('/api/register', registerUser);
 app.post('/api/login', logInUser);
 
 // User route
-app.post('/api/me', Me);
+app.get('/api/me', getMe);
 app.get('/api/users', getallUsers);
 
 // Update a user
