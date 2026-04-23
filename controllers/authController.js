@@ -12,7 +12,8 @@ const createUser = async (firstname, lastname, username, password) => {
 
 export const registerUser = async (req, res) => {
   try {
-    const { firstname, lastname, username, password, confirmPassword} = req.body;
+    const { firstname, lastname, username, password, confirmPassword } =
+      req.body;
     const hashedPassword = await bcrypt.hash(password, 10);
 
     if (!username || !password || !confirmPassword) {
@@ -34,7 +35,12 @@ export const registerUser = async (req, res) => {
       return res.status(400).json({ message: 'User already exists' });
     }
     // Register the new User
-    const newUser = await createUser(firstname, lastname, username, hashedPassword);
+    const newUser = await createUser(
+      firstname,
+      lastname,
+      username,
+      hashedPassword
+    );
     res.status(201).json({
       message: `User with ${newUser.username} created successfully`,
       user: newUser,
@@ -87,15 +93,19 @@ export const logInUser = async (req, res) => {
   }
 };
 
-export const Me = async (req, res) => {
+export const getMe = async (req, res) => {
   const token = req.headers.authorization?.split(' ')[1];
   if (!token) return res.status(401).json({ message: 'Unauthorized' });
 
   const decoded = jwt.verify(token, process.env.JWT_SECRET);
-  res.json({
-    id: decoded.id,
-    username: decoded.username,
-    role: decoded.role,
-    password: decoded.password,
-  });
+  const user = await pool.query(
+    'SELECT id, firstname, lastname, username, role FROM users WHERE id = $1',
+    [decoded.id]
+  );
+
+  if (user.rows.length === 0) {
+    return res.status(404).json({ message: 'User not found' });
+  }
+
+  res.json(user.rows[0]);
 };
